@@ -1,5 +1,6 @@
 # gbCalc
 
+**this progam is still in development and is not functioal!**  
 This will be a simple calculator for the gameboy.
 
 # how to compile

@@ -1,13 +1,15 @@
 ; defines
 
-; fixed variables
-	def tile_add equ $0D
-	def tile_modulus equ $11
+; fixed 
+	def last_cursor_state equ $04
+	def tile_add equ $0C
+	def tile_sub equ $0D
+	def tile_modulus equ $10
 	def tile_zero equ $01
 	def tile_nine equ $0A
 
 	; how much the cursor grapics are away from the cursor position
-	def cursorOffset equ $1F ; = size of a row
+	def cursorOffset equ $20 ; = size of a row
 
 
 ; tilemap adresses:

@@ -8,7 +8,7 @@ WaitVBlank::
 	.Wait:
 		ld a,[rLY]
 		cp 144
-		jp c, .Wait
+		jr c, .Wait
 
 	pop AF
 	ret
@@ -19,7 +19,7 @@ WaitNoVBlank::
 	.Wait:
 		ld a,[rLY]
 		cp 144
-		jp nc, .Wait
+		jr nc, .Wait
 
 	pop AF
 	ret
@@ -35,7 +35,7 @@ Memcpy::
 	; check if bc = 0
 	ld a,b
 	or a,c
-	jp nz,.loop
+	jr nz,.loop
 
 	; bc == 0
 	pop AF
@@ -50,7 +50,7 @@ Memcpy::
 		dec bc
 		ld a,b
 		or a,c
-		jp nz,.loop
+		jr nz,.loop
 
 	pop AF
 	ret
@@ -63,7 +63,7 @@ Clear_mem::
 	; check if bc = 0
 	ld a,b
 	or a,c
-	jp nz,.loop
+	jr nz,.loop
 
 	; bc == 0
 	pop AF
@@ -77,7 +77,7 @@ Clear_mem::
 		dec bc
 		ld a,b
 		or a,c
-		jp nz,.loop
+		jr nz,.loop
 
 	pop AF
 	ret

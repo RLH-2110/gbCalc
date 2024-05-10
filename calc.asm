@@ -66,7 +66,7 @@ Main:
 		.CheckUp
 		  ld a, [wNewKeys]
    		and a, PADF_UP
-    	jp z, CheckDown
+    	jr z, .CheckDown
     	
     	; pressed!
     	ld e,1
@@ -75,10 +75,29 @@ Main:
     .CheckDown:
 		  ld a, [wNewKeys]
    		and a, PADF_DOWN
-    	jp z, InputDone
+    	jr z, .CheckLeft
     	
     	; pressed!
     	ld e,2
+      call CursorHandler
+
+
+    .CheckLeft
+      ld a, [wNewKeys]
+      and a, PADF_LEFT
+      jr z, .CheckRight
+      
+      ; pressed!
+      ld e,3
+      call CursorHandler
+
+    .CheckRight:
+      ld a, [wNewKeys]
+      and a, PADF_RIGHT
+      jr z, .InputDone
+      
+      ; pressed!
+      ld e,4
       call CursorHandler
       
   .InputDone:
