@@ -1,11 +1,33 @@
 include "hardware.inc"
 
+SECTION "VBlankInterupt", rom0[$40]
+jp Main
+
 SECTION "header", rom0[$100]
 
-jp EntryPoint
-ds $150-@,0 ; reserve space for the header
+jp EntryPoint ; entry point
+nop
+
+ds $30,0 ; nintendo logo (rgbfix will instert it)
+db $47, $42, $20, $43, $41, $4C, $43, 0,0,0,0 ; game title 
+ds 4,0 ; Manufacturer code
+db 0 ; CGB flag (we dont use gbc yet, maybe never. having backwards compatability with the gameboy may be nice)
+dw 0 ; New licensee code
+db 0 ; SGB flag
+db 0 ; Cartridge type (let rgbfix figure this out)
+db 0 ; ROM size (let rgbfix figure this out)
+db 0 ; RAM size (let rgbfix figure this out)
+db 0 ; Destination code ( should not be imporant)
+db 0 ; Old licensee code
+db 0 ; Mask ROM version number (maybe we use this later)
+db 0 ; Header checksum (let rgbfix figure this out)
+dw 0 ; Global checksum (let rgbfix figure this out, though it should be unused)
+
+
+SECTION "main", rom0[$150]
 
 EntryPoint:
+di ; no interrupts
 call WaitVBlank
 
 ; turn off LCD
@@ -58,8 +80,18 @@ ld hl,wNumber0
 ld bc,15
 call Clear_mem ; clears wNumber0, wNumber1 and wResult
 
+; enable vblank interupt
+ld a,%0000_0001
+ld [rIE],a
+
+waitForever:
+  ei ; enable interups
+  nop ; not yet enabled 
+  halt ; main gets called via interupts, halt in the meantime. ( not yet implemented )
+  nop
+jr waitForever
+
 Main:
-	call WaitVBlank
 	call UpdateKeys
 
 	.check_dpad
@@ -101,8 +133,8 @@ Main:
       call CursorHandler
       
   .InputDone:
-    jp Main
-
+    ;jp Main
+    reti
 
 ; functions
 SECTION FRAGMENT "subroutine ROM", rom0[$1000]
