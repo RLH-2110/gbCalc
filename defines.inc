@@ -50,6 +50,8 @@ include "hardware.inc"
 	def tile_modulus equ $10
 	
 	def tile_c equ $0B
+	def tile_e equ $14
+
 	def tile_equals equ $11
 
 	def upper_cursor equ $12

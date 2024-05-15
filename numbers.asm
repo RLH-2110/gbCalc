@@ -149,11 +149,21 @@ CheckSign_TileMap::
 clearSelectedNumber::
 
 	ld a,[wCursorState]
+	; if number 0
 	cp a,cursorState_Number0
 	jr z, .Number0
+
+	cp a,cursorState_Number0Sign
+	jr z, .Number0
+
+	; if number 1
 	cp a,cursorState_Number1
 	jr z, .Number1
 
+	cp a,cursorState_Number1Sign
+	jr z, .Number1
+
+	; if not a number
 	ret
 
 	.Number0:
@@ -169,3 +179,92 @@ clearSelectedNumber::
 	ld d,tile_zero ; VALUE
 	call SetMem
 	ret
+
+
+ConvertInputs::
+	push af
+	push bc
+	push hl
+	push de
+
+	; set number0 to 0
+	xor a,a ; a = 0
+	ld [wNumber0],a
+	ld [wNumber0+1],a
+
+	ld c,0 ; digit counter/index
+	ld hl, screen + num0I + 4; load last digit from number0 (tilemap)
+	.Number0Loop:
+		
+		ld a,[hl]
+		dec a ; convert grapical number into real number (grapical 0 = 1, actuall 0 = 0)
+
+		; de = number
+		ld d,0
+		ld e,a
+
+		ld b,c ; counter for how many times we want to multiply
+
+		;
+		; now we (multiply the number by 10) x times, where x is the position of the number - 1 (positions: for a number 43210)
+		;
+
+			push hl
+
+			; hl = number
+			ld h,d
+			ld l,e
+
+		.number0Mul
+			ld a,b
+			cp a,0
+			jr z, .number0Mul_Done
+
+			call u16_times10			
+
+			dec b
+			jr .number0Mul 
+		.number0Mul_Done
+		
+			; number = hl
+			ld d,h
+			ld e,l
+			pop hl
+			
+		dec hl
+		inc c
+
+		; load number in hl 	(little endian)
+		push hl
+
+		ld a, [wNumber0+1]
+		ld h, a 
+		ld a, [wNumber0]
+		ld l, a
+
+		; add numbers
+		add hl,de
+
+		; store number (little endian)
+		ld a,h
+		ld [wNumber0+1], a 
+		ld a, l
+		ld [wNumber0], a
+
+		pop hl
+
+		ld a,c
+		cp a,5
+		jr nz, .Number0Loop
+
+
+
+
+		; TODO number1!
+
+	pop de
+	pop hl
+	pop bc
+	pop af
+	ret
+

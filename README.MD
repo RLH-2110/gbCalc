@@ -16,7 +16,7 @@ I use [emulicious](https://emulicious.net/downloads/) to test and play the rom, 
 \*except anywhere where java does not run
 
 
-# Controls:
+# Controls
 
 D-pad up/down		- circle values  
 D-pad right/left	- move cursor  

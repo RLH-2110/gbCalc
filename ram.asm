@@ -11,9 +11,9 @@ wCursorPos:: db ; offset for the cursor used in numbers
 ;cursorState4_endOffsetA:: dw $110
 
 section "numbers", WRAM0
-wNumber0:: ds 5
-wNumber1:: ds 5
-wResult:: ds 5
+wNumber0:: dw
+wNumber1:: dw
+wResult:: dw
 
 
 SECTION "Input Variables", WRAM0
