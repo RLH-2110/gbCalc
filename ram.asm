@@ -23,3 +23,5 @@ wNewKeys:: db
 SECTION "temp Variables", WRAM0
 tmp1:: dw
 tmp2:: dw
+tmpH:: db
+tmpL:: db

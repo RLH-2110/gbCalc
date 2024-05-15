@@ -78,7 +78,8 @@ ld [wCursorPos],a ; wCursorPos = 0
 
 ld hl,wNumber0
 ld bc,15
-call Clear_mem ; clears wNumber0, wNumber1 and wResult
+ld d,0
+call SetMem ; clears wNumber0, wNumber1 and wResult
 
 ; enable vblank interupt
 ld a,%0000_0001
@@ -126,11 +127,20 @@ Main:
     .CheckRight:
       ld a, [wNewKeys]
       and a, PADF_RIGHT
-      jr z, .InputDone
+      jr z, .checkSelect
       
       ; pressed!
       ld e,4
       call CursorHandler
+
+    .checkSelect
+      ld a, [wNewKeys]
+      and a, PADF_SELECT
+      jr z, .InputDone
+      
+      ; pressed!
+      call clearSelectedNumber
+    
       
   .InputDone:
     ;jp Main

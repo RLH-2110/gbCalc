@@ -14,3 +14,11 @@ you can use any gameboy, gameboy colour or gameboy advance emulator to execute t
 I use [emulicious](https://emulicious.net/downloads/) to test and play the rom, it used java and should run everywhere*  
 
 \*except anywhere where java does not run
+
+
+# Controls:
+
+D-pad up/down		- circle values  
+D-pad right/left	- move cursor  
+
+Start			- clears selected number

@@ -57,7 +57,8 @@ Memcpy::
 
 ; HL : DESTINATION
 ; BC : BYTES
-Clear_mem::
+; D  : VALUE
+SetMem::
 	push AF
 
 	; check if bc = 0
@@ -72,7 +73,7 @@ Clear_mem::
 	; bc != 0
 	.loop:
 
-		xor a,a ; a = 0
+		ld a,d
 		ld [hl+],a
 		dec bc
 		ld a,b

@@ -10,15 +10,15 @@ SECTION FRAGMENT "subroutine ROM", rom0
 
 	;tilemap offset, inc routine, dec routine, left routine, right routine
 	.cs0:
-	dw $9800 + $102, CursorSignToggle, CursorSignToggle, CursorWrapToRight, CursorRight
+	dw screen + $102, CursorSignToggle, CursorSignToggle, CursorWrapToRight, CursorRight
 	.cs1:
-	dw $9800 + $103, CursorNumberInc, CursorNumberDec, CursorNumberLeft, CursorNumberRight
+	dw screen + $103, CursorNumberInc, CursorNumberDec, CursorNumberLeft, CursorNumberRight
 	.cs2:
-	dw $9800 + $109, CursorOperatorInc, CursorOperatorDec, CursorLeft, CursorRight
+	dw screen + $109, CursorOperatorInc, CursorOperatorDec, CursorLeft, CursorRight
 	.cs3:
-	dw $9800 + $10B, CursorSignToggle, CursorSignToggle, CursorLeft, CursorRight
+	dw screen + $10B, CursorSignToggle, CursorSignToggle, CursorLeft, CursorRight
 	.cs4:
-	dw $9800 + $10C, CursorNumberInc, CursorNumberDec, CursorNumberLeft, CursorNumberRight
+	dw screen + $10C, CursorNumberInc, CursorNumberDec, CursorNumberLeft, CursorNumberRight
 
 
 ; code:
@@ -99,6 +99,7 @@ CursorHandler::
 
 
 ; DE: tilemap adress
+;! assumes that all registers are free to use. !
 CursorNumberInc:
 	;load offset io the tile with the number into hl
 	ld h,d
@@ -129,6 +130,7 @@ CursorNumberInc:
 
 
 ; DE: tilemap adress
+;! assumes that all registers are free to use. !
 CursorNumberDec:
 	;load offset io the tile with the number into hl
 	ld h,d
@@ -157,6 +159,7 @@ CursorNumberDec:
 
 
 ; DE: tilemap adress
+;! assumes that all registers are free to use. !
 CursorOperatorInc:
 	ld h,d
 	ld l,e
@@ -173,6 +176,7 @@ CursorOperatorInc:
 
 
 ; DE: tilemap adress
+;! assumes that all registers are free to use. !
 CursorOperatorDec:
 	;load offset io the tile with the number into hl
 	ld h,d
@@ -191,6 +195,7 @@ CursorOperatorDec:
 
 
 ; DE: tilemap adress
+;! assumes that all registers are free to use. !
 CursorSignToggle:
 	;load offset io the tile with the number into hl
 	ld h,d
@@ -204,13 +209,16 @@ CursorSignToggle:
 	;else set it to plus
 	ld [hl],tile_add
 
+	call validateInput
 	ret
 .setMinus	
 	ld [hl],tile_sub
+
+	call validateInput
 	ret
 
 
-
+;! assumes that all registers are free to use. !
 CursorLeft: ; for non numbers
 	push hl
 
@@ -232,6 +240,7 @@ CursorLeft: ; for non numbers
 	pop hl
 	ret
 
+;! assumes that all registers are free to use. !
 CursorRight: ; for non numbers
 	push hl
 
@@ -253,6 +262,7 @@ CursorRight: ; for non numbers
 	pop hl
 	ret
 
+;! assumes that all registers are free to use. !
 CursorWrapToLeft: ; unused
 	push hl
 
@@ -274,6 +284,7 @@ CursorWrapToLeft: ; unused
 	pop hl
 	ret
 
+;! assumes that all registers are free to use. !
 CursorWrapToRight:
 	push hl
 
@@ -295,7 +306,7 @@ CursorWrapToRight:
 	pop hl
 	ret
 
-
+;! assumes that all registers are free to use. !
 CursorNumberLeft:
 	push hl
 
@@ -338,7 +349,7 @@ CursorNumberLeft:
 	pop hl
 	ret
 
-
+;! assumes that all registers are free to use. !
 CursorNumberRight:
 push hl
 
@@ -437,7 +448,7 @@ CursotSetPosition:
 
 	; remove the lower cursor grapic
 	add HL,bc	; apply offset to put hl at the adress of the upper lower grapic
-	ld [hl],0 ; set tile to nothing
+	ld [hl],tile_empty ; set tile to nothing
 
 	;restet hl to cursor position
 	ld h,d
@@ -459,7 +470,7 @@ CursotSetPosition:
 	
 
 	; set tile to nothing
-	ld [hl],0
+	ld [hl],tile_empty
 
 
 
@@ -512,7 +523,7 @@ CursotSetPosition:
 
 	; add the lower cursor grapic
 	add HL,bc	; apply offset to put hl at the adress of the upper lower grapic
-	ld [hl],$13 ; set tile to lower cursor
+	ld [hl],lower_cursor
 
 	;restet hl to cursor position
 	ld h,d
@@ -531,8 +542,7 @@ CursotSetPosition:
 	sbc a,b ; sub with carry!
 	ld h,a
 
-	; set tile to upper cursor
-	ld [hl],$12
+	ld [hl], upper_cursor
 
 
 	pop af
