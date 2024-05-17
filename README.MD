@@ -20,5 +20,7 @@ I use [emulicious](https://emulicious.net/downloads/) to test and play the rom, 
 
 D-pad up/down		- circle values  
 D-pad right/left	- move cursor  
-
-Start			- clears selected number
+  
+Start			- clears selected number  
+  
+a				- starts calulation (not yet done)  

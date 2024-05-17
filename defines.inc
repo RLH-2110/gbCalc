@@ -15,7 +15,7 @@ include "hardware.inc"
 	def cursorState_Number1Sign equ $03
 	def cursorState_Number1 equ $04
 
-; tilemap adresses:
+; tilemap indexes:
 
 	; operatorI is the tilemap index of where the operator should be located
 	; num0I is the index of the start tile of the first number

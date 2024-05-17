@@ -113,3 +113,9 @@ u16_times10::
 
 	ret
 
+
+; HL = number to be divided
+print_result::
+	
+	ret
+

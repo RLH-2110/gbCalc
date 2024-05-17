@@ -77,7 +77,7 @@ xor a,a ; a = 0
 ld [wCursorPos],a ; wCursorPos = 0
 
 ld hl,wNumber0
-ld bc,15
+ld bc,6
 ld d,0
 call SetMem ; clears wNumber0, wNumber1 and wResult
 
@@ -93,6 +93,31 @@ waitForever:
 jr waitForever
 
 Main:
+  
+  push af
+  ld a,[wFinishedWork]
+  cp a,0
+  jr z,.doMain ; if we do not have more work to do, then continue the main function
+
+  ;else return since this is an interupt
+  pop af
+  reti ; we have more work to do
+
+  .doMain:
+  pop af
+  
+  ld a,$ff
+  ld [wFinishedWork],a ; now we have work to do
+
+
+  ld a,[wPrintResult]
+  cp a,0
+  jr z, .noPrint
+
+  call displayResult ; call it now, since I dont know how many cyles a big division or multiplication might take. I dont want to risk writing outside vblank
+
+  .noPrint:
+
 	call UpdateKeys
 
 	.check_dpad
@@ -150,7 +175,9 @@ Main:
       call Calculate
       
   .InputDone:
-    ;jp Main
+    xor a,a ; a = 0
+    ld [wFinishedWork],a ; no more work to do
+  
     reti
 
 ; functions

@@ -14,7 +14,7 @@ section "numbers", WRAM0
 wNumber0:: dw
 wNumber1:: dw
 wResult:: dw
-
+wResultError:: db ; boolean
 
 SECTION "Input Variables", WRAM0
 wCurKeys:: db
@@ -25,3 +25,7 @@ tmp1:: dw
 tmp2:: dw
 tmpH:: db
 tmpL:: db
+
+section "control", WRAM0
+wFinishedWork:: db ; z = finished work, nz = did not finish work
+wPrintResult:: db ; z = do not print, nz = print
