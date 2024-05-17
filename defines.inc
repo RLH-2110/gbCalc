@@ -6,6 +6,9 @@ include "hardware.inc"
 	def screen equ _SCRN0	
 	def last_cursor_state equ $04
 
+	def doubleDabbleSize equ $5 ; bytes
+	def dd_numberIndex equ $3
+
 	; how much the cursor grapics are away from the cursor position
 	def cursorOffset equ $20 ; = size of a row
 

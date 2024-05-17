@@ -81,6 +81,10 @@ ld bc,6
 ld d,0
 call SetMem ; clears wNumber0, wNumber1 and wResult
 
+xor a,a ; a = 0
+ld [wFinishedWork],a
+ld [wPrintResult],a
+
 ; enable vblank interupt
 ld a,%0000_0001
 ld [rIE],a
@@ -93,7 +97,9 @@ waitForever:
 jr waitForever
 
 Main:
-  
+
+  ; check if we can execute the main without problems
+
   push af
   ld a,[wFinishedWork]
   cp a,0
@@ -105,10 +111,13 @@ Main:
 
   .doMain:
   pop af
-  
+
+
   ld a,$ff
   ld [wFinishedWork],a ; now we have work to do
 
+
+  ; check if we need to print the result of an operation
 
   ld a,[wPrintResult]
   cp a,0

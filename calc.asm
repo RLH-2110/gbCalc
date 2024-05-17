@@ -1,8 +1,10 @@
 include "hardware.inc"
+include "defines.inc"
 
 SECTION FRAGMENT "subroutine ROM", rom0
 
 ; uses A,HL,BC
+; by proxy: (RAM) wTmp1,wTmp2, wTmpH
 MathOpJumpTable:
 	dw Math_add, Math_sub, Math_mul, Math_div, Math_mod
 
@@ -33,20 +35,13 @@ Calculate::
 	.returnAdress:
 
 	; we did the math, now we need to display stuff
-	
-	ld a,[wResultError]
-	cp a,0
-	jp nz, ErrorResult ; if an error occured (like the result being out of boudns), then jump somewhere else
 
-	call displayResult
+	; prepare number with double dable, so it can be quickly displayed
+	call prepareResult
 
-	ret
+	ld a,$ff
+  	ld [wPrintResult],a ; tells the main to print the result
 
-ErrorResult:
-	ld hl, screen + resI; destination
-	ld bc,5 	; bytes to write
-	ld d,tile_e ; value to write
-	call SetMem
 	ret
 
 ; uses: A, BC, HL
