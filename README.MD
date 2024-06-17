@@ -6,7 +6,7 @@ This will be a simple calculator for the gameboy.
 # how to compile
 
 Install [RGBDS](https://rgbds.gbdev.io/install/)  
-run make  
+run `make`  
 
 # how do i use the .gb file?
 
