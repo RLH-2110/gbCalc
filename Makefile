@@ -27,7 +27,15 @@ $(TARGET): $(OBJ_FILES)
 %.o: %.asm
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
+
+# Detect operating system (thanks chatgpt)
+ifeq ($(OS),Windows_NT)
+    RM = del /F /Q
+else
+    RM = rm -f
+endif
+
 clean:
-	rm -f $(OBJ_FILES) $(TARGET) $(SYMFILE)
+	$(RM) $(OBJ_FILES) $(TARGET) $(SYMFILE)
 
 .PHONY: all clean

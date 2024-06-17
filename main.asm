@@ -55,6 +55,9 @@ ClearOAM:
   dec b
   jp nz, ClearOAM
 
+; clear wFinishedWork
+ld [wFinishedWork],a ; a = 0
+
 ; load objects
 ld de,Objects
 ld hl,_OAMRAM
@@ -84,6 +87,7 @@ call SetMem ; clears wNumber0, wNumber1 and wResult
 ; enable vblank interupt
 ld a,%0000_0001
 ld [rIE],a
+
 
 waitForever:
   ei ; enable interups

@@ -1,4 +1,5 @@
 include "hardware.inc"
+include "defines.inc"
 
 SECTION FRAGMENT "subroutine ROM", rom0
 
