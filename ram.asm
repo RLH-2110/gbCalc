@@ -1,5 +1,5 @@
-SECTION "stack",HRAM[$FFF0]
-ds $E ; reserve $FFF0 to %FFFE as stack memory
+SECTION "stack",HRAM[$FFE0]
+ds $1E ; reserve $FFE0 to %FFFE as stack memory (30 bytes (15 pushes))
 
 
 section "cursorVariables", WRAM0
