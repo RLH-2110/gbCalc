@@ -244,6 +244,3 @@ TilemapEnd::
 
 Objects::
 ObjectsEnd::
-
-
-RomEnd:: ; label for the debbuger, so I can see where the last USED (+1) of the ROM is

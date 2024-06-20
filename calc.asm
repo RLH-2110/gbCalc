@@ -9,10 +9,15 @@ MathOpJumpTable:
 	dw Math_add, Math_sub, Math_mul, Math_div, Math_mod
 
 Calculate::
+	
+	call waitStartVBlank ; we need to read vram
+
 	call ConvertInputs
 
 	xor a,a ; a = 0
 	ld [wResultError],a ; reset error boolean
+
+	call waitStartVBlank ; we need to read vram soon
 
 	; get operator
 	ld hl, screen + operatorI
@@ -27,6 +32,15 @@ Calculate::
 	ld b,0
 	ld c,a
 	add hl,bc ; aplly offset
+
+	; load de,[hl]
+	ld e,[hl]
+	inc hl
+	ld d,[hl]
+
+	; ld hl,de
+	ld h,d
+	ld l,e
 
 	ld bc,.returnAdress
 	push bc 
@@ -49,9 +63,9 @@ Calculate::
 Math_add:
 
 	; load number 0 into hl (little endian)
-	ld a, [wNumber1+1]
+	ld a, [wNumber0+1]
 	ld h, a
-	ld a, [wNumber1]
+	ld a, [wNumber0]
 	ld l, a
 
 

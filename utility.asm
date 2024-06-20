@@ -2,6 +2,17 @@ include "hardware.inc"
 
 SECTION FRAGMENT "subroutine ROM", rom0
 
+waitStartVBlank::
+	push AF
+
+	.Wait:
+		ld a,[rLY]
+		cp 144
+		jr nz, .Wait
+
+	pop AF
+	ret
+
 WaitVBlank::
 	push AF
 

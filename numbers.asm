@@ -275,6 +275,9 @@ ConvertInputs::
 
 	ld c,0 ; digit counter/index
 	ld hl, screen + num1I + 4; load last digit from number1 (tilemap)
+
+	call waitStartVBlank ; otherwhise we run into errors due to reading vram outside vblank
+	
 	.Number1Loop:
 		
 		ld a,[hl]
