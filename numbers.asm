@@ -366,9 +366,11 @@ displayResult::
 	
 	; do display stuff here:
 
+	call waitStartVBlank ; dumb idea, this might jump to main instead
+
 	ld DE,wDoubleDabble ; SOURCE
 	ld HL,screen + resI ; DESTINATION
-	ld BC,doubleDabbleSize-2 ; BYTES
+	ld BC,doubleDabbleSize ; BYTES
 	call Memcpy
 
 	pop de

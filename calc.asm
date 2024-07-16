@@ -53,6 +53,8 @@ Calculate::
 	; prepare number with double dable, so it can be quickly displayed
 	call prepareResult
 
+	call adjutsBCD
+
 	ld a,$ff
   	ld [wPrintResult],a ; tells the main to print the result
 

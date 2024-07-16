@@ -124,3 +124,57 @@ u16_times10::
 
 	ret
 
+
+
+
+
+
+; wDoubleDabble = 5 bytes
+; unpacs the BCD and adjust it for displaying
+; used a and wDoubleDabble
+adjutsBCD::
+
+	; move first digit to rightmost bcd memory
+	ld a,[wDoubleDabble+2]
+	and a,$0f
+	inc a ; numbers start at one, not zero
+	ld [wDoubleDabble+4],a
+
+	; move second digit to +4
+	ld a,[wDoubleDabble+2]
+	and a,$f0
+	; shift a right 4 times, no carry
+	rrc a
+	rrc a
+	rrc a
+	rrc a
+	inc a ; numbers start at one, not zero
+	ld [wDoubleDabble+3],a
+
+	; move thirt digit to +3
+	ld a,[wDoubleDabble+1]
+	and a,$0f
+	inc a ; numbers start at one, not zero
+	ld [wDoubleDabble+2],a
+
+	; adjust 4th digit to be correctly in +2
+	ld a,[wDoubleDabble+1]
+	and a,$f0
+	; shift a right 4 times, no carry
+	rrc a
+	rrc a
+	rrc a
+	rrc a
+	inc a ; numbers start at one, not zero
+	ld [wDoubleDabble+1],a
+
+	ld a,[wDoubleDabble]
+	inc a ; numbers start at one, not zero
+	ld [wDoubleDabble],a
+
+	ret
+
+; shift a right 4 times, no carry
+.shifta4
+	
+ret

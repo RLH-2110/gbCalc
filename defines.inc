@@ -29,7 +29,7 @@ include "hardware.inc"
 	def num1I equ $10C
 
 	;resI is the adress of where the result should be written to
-	def resI equ $148
+	def resI equ $168
 
 
 ; tiles

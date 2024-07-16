@@ -23,8 +23,9 @@ prepareResult::
 	ld c,16 ; counter (for every bit)
 	.doubleDabbleLoop
 
-		call doubleDabbleShift
 		call doubleDabbleCheck
+		call doubleDabbleShift
+		
 
 		dec c
 
