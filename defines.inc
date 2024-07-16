@@ -6,6 +6,9 @@ include "hardware.inc"
 	def screen equ _SCRN0	
 	def last_cursor_state equ $04
 
+	def doubleDabbleSize equ $5 ; bytes
+	def dd_numberIndex equ $3
+
 	; how much the cursor grapics are away from the cursor position
 	def cursorOffset equ $20 ; = size of a row
 
@@ -26,7 +29,7 @@ include "hardware.inc"
 	def num1I equ $10C
 
 	;resI is the adress of where the result should be written to
-	def resI equ $148
+	def resI equ $168
 
 
 ; tiles

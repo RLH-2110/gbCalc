@@ -8,14 +8,14 @@ ValidNumberLookup:
 db tile_three, tile_two, tile_seven, tile_six, tile_empty ; last byte will either be 7 or 8, we can modify it when we need to actually check the byte.
 
 ;! assumes that all registers are free to use. !
-; uses HL,A,BC, (ram)tmpL, (ram)tmpH
+; uses HL,A,BC, (ram)wTmpL, (ram)wTmpH
 validateInput::
 
 	ld hl,screen + num0I ; loads adress of number 0(in tilemap) 
 	xor a,a ; a = 0
 	ld c,a ;counter in number
-	ld [tmpL],a ; number counter
-	ld [tmpH],a ; boolean, overwrite all
+	ld [wTmpL],a ; number counter
+	ld [wTmpH],a ; boolean, overwrite all
 	jr .CheckNumber
 
 
@@ -23,9 +23,9 @@ validateInput::
 		ld hl,screen + num1I ; loads adress of number 1 (in tilemap) 
 		ld c,0 ;counter
 		ld a,1
-		ld [tmpL],a ; number counter
+		ld [wTmpL],a ; number counter
 		xor a,a ; a = 0
-		ld [tmpH],a ; boolean, overwrite all
+		ld [wTmpH],a ; boolean, overwrite all
 
 	.CheckNumber:
 
@@ -71,7 +71,7 @@ validateInput::
 
 		; check if we are in overwrite mode (the entire number must be overwritten)
 		push af
-		ld a,[tmpH]
+		ld a,[wTmpH]
 		cp a,1
 		jr z, .OverwriteAll ; if we are in overwerite mode, jump to it.
 		pop af
@@ -86,7 +86,7 @@ validateInput::
 		;tiles dont match! ( b > a)
 		push af
 		ld a,1
-		ld [tmpH],a
+		ld [wTmpH],a
 		
 		jr .OverwriteAll
 
@@ -108,19 +108,19 @@ validateInput::
 
 
 		.CheckNextNumber:
-		ld a,[tmpL]
+		ld a,[wTmpL]
 		cp a,0
 		jp z,.nextNumber
 
 		ret
 
 
-; tmpL: number (0 = number0, not zero = number1)
+; wTmpL: number (0 = number0, not zero = number1)
 ; a: 0 = positive, $ff = negative
 CheckSign_TileMap::
 
 	;check if we are in number 0
-	ld a,[tmpL]
+	ld a,[wTmpL]
 	cp a,0
 	jr z,.Number0
 
@@ -275,6 +275,9 @@ ConvertInputs::
 
 	ld c,0 ; digit counter/index
 	ld hl, screen + num1I + 4; load last digit from number1 (tilemap)
+
+	call waitStartVBlank ; otherwhise we run into errors due to reading vram outside vblank
+	
 	.Number1Loop:
 		
 		ld a,[hl]
@@ -346,9 +349,38 @@ ConvertInputs::
 	ret
 
 
-
-
+; will use: A, BC, HL, 	<- (update!)
+; and (READ)(RAM) wTmp1,wTmp2, wTmpH
 displayResult::
-	
+	push de
 
+	xor a,a ; a = 0
+  	ld [wPrintResult],a ; we are handleing the print order now, so make sure we dont do the same order twice
+
+
+	; check if we need to display an error message
+	ld a,[wResultError]
+	cp a,0
+	jp nz, ErrorResult ; if an error occured (like the result being out of boudns), then jump somewhere else
+
+	
+	; do display stuff here:
+
+	call waitStartVBlank ; dumb idea, this might jump to main instead
+
+	ld DE,wDoubleDabble ; SOURCE
+	ld HL,screen + resI ; DESTINATION
+	ld BC,doubleDabbleSize ; BYTES
+	call Memcpy
+
+	pop de
+	ret
+
+
+ErrorResult: 
+	; fill the result with E
+	ld hl, screen + resI; destination
+	ld bc,5 	; bytes to write
+	ld d,tile_e ; value to write
+	call SetMem
 	ret

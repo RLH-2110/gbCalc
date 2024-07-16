@@ -5,7 +5,7 @@ TARGET := calc.gb
 SYMFILE := calc.sym
 
 # Define source files
-ASM_FILES := main.asm calc.asm cursorLogic.asm grapicsROM.asm utility.asm ram.asm numbers.asm
+ASM_FILES := main.asm calc.asm cursorLogic.asm grapicsROM.asm utility.asm ram.asm numbers.asm doubleDabble.asm
 
 # Define object files
 OBJ_FILES := $(ASM_FILES:.asm=.o)

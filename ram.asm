@@ -21,10 +21,11 @@ wCurKeys:: db
 wNewKeys:: db
 
 SECTION "temp Variables", WRAM0
-tmp1:: dw
-tmp2:: dw
-tmpH:: db
-tmpL:: db
+wDoubleDabble:: ; uses 5 bytes (wTmp1,wTmp2,wTmpH)
+wTmp1:: dw
+wTmp2:: dw
+wTmpH:: db
+wTmpL:: db
 
 section "control", WRAM0
 wFinishedWork:: db ; z = finished work, nz = did not finish work

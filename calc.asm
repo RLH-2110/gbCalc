@@ -4,14 +4,20 @@ include "defines.inc"
 SECTION FRAGMENT "subroutine ROM", rom0
 
 ; uses A,HL,BC
+; by proxy: (RAM) wTmp1,wTmp2, wTmpH
 MathOpJumpTable:
 	dw Math_add, Math_sub, Math_mul, Math_div, Math_mod
 
 Calculate::
+	
+	call waitStartVBlank ; we need to read vram
+
 	call ConvertInputs
 
 	xor a,a ; a = 0
 	ld [wResultError],a ; reset error boolean
+
+	call waitStartVBlank ; we need to read vram soon
 
 	; get operator
 	ld hl, screen + operatorI
@@ -27,6 +33,15 @@ Calculate::
 	ld c,a
 	add hl,bc ; aplly offset
 
+	; load de,[hl]
+	ld e,[hl]
+	inc hl
+	ld d,[hl]
+
+	; ld hl,de
+	ld h,d
+	ld l,e
+
 	ld bc,.returnAdress
 	push bc 
 	jp hl
@@ -34,20 +49,15 @@ Calculate::
 	.returnAdress:
 
 	; we did the math, now we need to display stuff
-	
-	ld a,[wResultError]
-	cp a,0
-	jp nz, ErrorResult ; if an error occured (like the result being out of boudns), then jump somewhere else
 
-	call displayResult
+	; prepare number with double dable, so it can be quickly displayed
+	call prepareResult
 
-	ret
+	call adjutsBCD
 
-ErrorResult:
-	ld hl, screen + resI; destination
-	ld bc,5 	; bytes to write
-	ld d,tile_e ; value to write
-	call SetMem
+	ld a,$ff
+  	ld [wPrintResult],a ; tells the main to print the result
+
 	ret
 
 ; uses: A, BC, HL
@@ -55,9 +65,9 @@ ErrorResult:
 Math_add:
 
 	; load number 0 into hl (little endian)
-	ld a, [wNumber1+1]
+	ld a, [wNumber0+1]
 	ld h, a
-	ld a, [wNumber1]
+	ld a, [wNumber0]
 	ld l, a
 
 
