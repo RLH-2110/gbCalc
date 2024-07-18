@@ -29,6 +29,7 @@ include "hardware.inc"
 	def num1I equ $10C
 
 	;resI is the adress of where the result should be written to
+	def res_prefixI equ $167
 	def resI equ $168
 
 

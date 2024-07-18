@@ -79,13 +79,27 @@ Math_add:
 
 
 	add HL,BC ; add them
-	jr nc, .Done
+	
+	ld a,h ; 
+	and a,%1000_0000 ; only select the sign
+	jp z,.done ; if there is no sign, skip
 
-	; overflow
+	; overflow between numbers with the same signs will be treated as an error.
+
+	;check if numbers have the same sign
+	ld a,[wNumber0+1]
+	and a, %1000_0000 ; only get the sign
+	ld b,a
+	ld a,[wNumber1+1]
+	and a, %1000_0000 ; only get the sign
+	cp a,b ; same sign?
+	jp nz,.done ; if different sign, jump over error code
+
+	;same sign found!
 	ld a,$ff
 	ld [wResultError],a
 
-	.Done:
+	.done:
 	; store result into wResult (little endian)
 	ld a,h
 	ld [wResult+1],a
@@ -95,7 +109,71 @@ Math_add:
 	ret
 
 
+; uses: A, BC, HL
+; output: wResult, wResultError
 Math_sub:
+
+	; load number 0 into BA (little endian)
+	ld a, [wNumber0+1]
+	ld b, a
+	ld a, [wNumber0]
+
+
+	; load address of number 1 into HL 
+	ld hl,wNumber1
+
+
+	sub a,[HL] ; substract the lower byte of number 1 from number 0
+	ld c,a ; store the result in c
+
+	ld a,b ; load upper byte of number 0
+	inc hl ; address of upper byte of number 1
+	sbc a,[hl] ; subscract with carry
+	ld h,a
+
+
+	and a,%1000_0000 ; only select the sign
+	jp nz,.done ; if there is a sign, skip
+
+
+; overflow between numbers with the same signs will be treated as an error.
+
+	;check if there is an even amount of '-' (meaning we are adding)
+
+	ld b,1 ; counter for '-' (we are in the sub subroutine, so we already have 1 minus)
+
+	;if number0 = -
+	ld a,[wNumber0Negative]
+	or a,a ; reset flags
+	jp z,.skip1
+
+	inc b
+	.skip1:
+
+	;if number1 = -
+	ld a,[wNumber1Negative]
+	or a,a ; reset flags
+	jp z,.skip2
+
+	inc b
+	.skip2:
+
+
+	ld a,b
+	cp a,2
+	jp nz,.done ; if different uneven amount of '-', jump over error code
+
+	;even amount of minus!
+	ld a,$ff
+	ld [wResultError],a
+
+	.done:
+	; store result into wResult (little endian)
+	ld a,h ; load the result we stored for the upper byte
+	ld [wResult+1],a
+	ld a,c ; load the result we stored for the lower byte
+	ld [wResult],a
+	
 
 	ret
 

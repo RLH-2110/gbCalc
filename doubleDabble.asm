@@ -7,6 +7,48 @@ SECTION FRAGMENT "subroutine ROM", rom0
 prepareResult::
 	push de
 
+
+	; first make sure that the result is treated as a positive number when used in BCD
+
+	
+
+
+	; if the number is not negative, skip the next code
+	ld a,[wResult+1]
+	and a, %1000_0000 ; check for the sign
+	ld [wResultNegative],a ; is the number was signed, then a is $80 with is nz which means this is "true" otherwhise its "false"
+
+	jp z,.resultPositive
+
+
+	; flip all bits
+	ld a,[wResult]
+	xor a,$ff
+	ld [wResult],a
+	ld a,[wResult+1]
+	xor a,$ff
+	ld [wResult+1],a
+
+	; add 1
+	ld a,[wResult]
+	inc a
+	ld [wResult],a
+	
+	jp nz,.resultPositive ; no carry on increment
+
+	; carry on increment
+
+	; add 1 to upper byte
+	ld a,[wResult+1]
+	inc a
+	ld [wResult+1],a
+
+
+	.resultPositive:
+
+
+
+
 	; clear space for Double Dabble
 	ld hl,wDoubleDabble		; DESTINATION
 	ld bc,doubleDabbleSize	; BYTES

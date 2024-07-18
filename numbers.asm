@@ -18,8 +18,14 @@ validateInput::
 	ld [wTmpH],a ; boolean, overwrite all
 	jr .CheckNumber
 
+	;
+
 
 	.nextNumber:
+		; save if number is negative
+		ld a, [wNumberXNegative]
+		ld [wNumber0Negative],a
+
 		ld hl,screen + num1I ; loads adress of number 1 (in tilemap) 
 		ld c,0 ;counter
 		ld a,1
@@ -57,6 +63,7 @@ validateInput::
 
 				; z = positive, nz = negative
 				cp a,0
+				ld [wNumberXNegative],a
 				jr nz, .numberNegative
 
 				; positive number
@@ -111,6 +118,14 @@ validateInput::
 		ld a,[wTmpL]
 		cp a,0
 		jp z,.nextNumber
+
+
+
+
+
+		; save if number is negative
+		ld a, [wNumberXNegative]
+		ld [wNumber1Negative],a
 
 		ret
 
@@ -260,6 +275,39 @@ ConvertInputs::
 
 
 
+
+		; adjust the number if its negative
+
+		; if the number is not negative, skip the next code
+		ld a,[screen + num0_prefixI] 
+		cp a,tile_sub
+		jp nz,.num0done
+
+
+		; flip all bits
+		ld a,[wNumber0]
+		xor a,$ff
+		ld [wNumber0],a
+		ld a,[wNumber0+1]
+		xor a,$ff
+		ld [wNumber0+1],a
+
+		; add 1
+		ld a,[wNumber0]
+		inc a
+		ld [wNumber0],a
+		
+		jp nz,.num0done ; no carry on increment
+
+		; carry on increment
+
+		; add 1 to upper byte
+		ld a,[wNumber0+1]
+		inc a
+		ld [wNumber0+1],a
+
+
+		.num0done:
 ;
 ;
 ;		 I Have decided its not worth my time to make this loopable, so I just copy paste the subrotine
@@ -342,6 +390,41 @@ ConvertInputs::
 		jr nz, .Number1Loop
 
 
+
+		; adjust the number if its negative
+
+		; if the number is not negative, skip the next code
+		ld a,[screen + num1_prefixI] 
+		cp a,tile_sub
+		jp nz,.num1done
+
+
+		; flip all bits
+		ld a,[wNumber1]
+		xor a,$ff
+		ld [wNumber1],a
+		ld a,[wNumber1+1]
+		xor a,$ff
+		ld [wNumber1+1],a
+
+		; add 1
+		ld a,[wNumber1]
+		inc a
+		ld [wNumber1],a
+		
+		jp nz,.num1done ; no carry on increment
+
+		; carry on increment
+
+		; add 1 to upper byte
+		ld a,[wNumber1+1]
+		inc a
+		ld [wNumber1+1],a
+
+
+
+		.num1done:
+
 	pop de
 	pop hl
 	pop bc
@@ -366,7 +449,25 @@ displayResult::
 	
 	; do display stuff here:
 
-	call waitStartVBlank ; dumb idea, this might jump to main instead
+	call waitStartVBlank 
+
+	ld a,[wResultNegative] ; if the number is positve, skup to .positive
+	or a,a ; set the flags based on the value of a
+	jp z,.positive
+
+	;number negative
+
+	; write a '-' before the number
+	ld a,tile_sub
+	ld [screen+res_prefixI],a
+	jp .printNum
+
+	.positive: ; write an empty tile before the number
+	ld a,tile_empty
+	ld [screen+res_prefixI],a
+
+	.printNum:
+
 
 	ld DE,wDoubleDabble ; SOURCE
 	ld HL,screen + resI ; DESTINATION
@@ -378,6 +479,9 @@ displayResult::
 
 
 ErrorResult: 
+
+	call waitStartVBlank 
+
 	; fill the result with E
 	ld hl, screen + resI; destination
 	ld bc,5 	; bytes to write
