@@ -22,10 +22,6 @@ validateInput::
 
 
 	.nextNumber:
-		; save if number is negative
-		ld a, [wNumberXNegative]
-		ld [wNumber0Negative],a
-
 		ld hl,screen + num1I ; loads adress of number 1 (in tilemap) 
 		ld c,0 ;counter
 		ld a,1
@@ -63,7 +59,6 @@ validateInput::
 
 				; z = positive, nz = negative
 				cp a,0
-				ld [wNumberXNegative],a
 				jr nz, .numberNegative
 
 				; positive number
@@ -119,16 +114,25 @@ validateInput::
 		cp a,0
 		jp z,.nextNumber
 
-
-
-
-
-		; save if number is negative
-		ld a, [wNumberXNegative]
-		ld [wNumber1Negative],a
-
 		ret
 
+
+; sets the negative variables in ram, used by calc.asm
+setNegatives::
+	call waitStartVBlank
+
+	push af
+
+	ld a,[screen+num0_prefixI] ; load tile that shows sign
+	sub a,tile_add ; substact + (a = 0 if tile = add. tile is nz if its not +) 
+	ld [wNumber0Negative],a ; 0 = positive; nz = negative
+
+	ld a,[screen+num1_prefixI]
+	sub a,tile_add
+	ld [wNumber1Negative],a
+
+	pop af
+	ret
 
 ; wTmpL: number (0 = number0, not zero = number1)
 ; a: 0 = positive, $ff = negative

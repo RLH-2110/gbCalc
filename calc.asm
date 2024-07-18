@@ -10,6 +10,8 @@ MathOpJumpTable:
 
 Calculate::
 	
+	call setNegatives ; get the variables that show what numbers are negative
+
 	call waitStartVBlank ; we need to read vram
 
 	call ConvertInputs
@@ -133,7 +135,7 @@ Math_sub:
 
 
 	and a,%1000_0000 ; only select the sign
-	jp nz,.done ; if there is a sign, skip
+	jp z,.done ; if there is no sign, skip
 
 
 ; overflow between numbers with the same signs will be treated as an error.
