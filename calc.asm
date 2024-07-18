@@ -181,8 +181,81 @@ Math_sub:
 
 
 Math_mul:
+	
+	; see what number is bigger
+	ld a,[wNumber1+1]
+	ld b,a
+	ld a,[wNumber0+1]
+
+	cp a,b
+	jc .swap ; num0 is bigger than num1
+	jp nz,.noSwap ; number 1 is bigger than number 0 AND we dont need to check the least significant byte
+
+	; compare least significant byte
+	ld a,[wNumber1]
+	ld b,a
+	ld a,[wNumber0]
+
+	cp a,b
+	jp c, .swap ; num0 is bigger than num1
+
+	.swap:
+	
+	; store number 1 in HL
+	ld a,[wNumber1+1]
+	ld h,a
+	ld a, [wNumber1]
+	ld l,a
+
+	;store number 0 in BC
+	ld a,[wNumber0+1]
+	ld d,a
+	ld a, [wNumber0]
+	ld e,a 
+
+	jp done
+	.noSwap:
+
+	; store number 0 in HL
+	ld a,[wNumber0+1]
+	ld h,a
+	ld a, [wNumber0]
+	ld l,a
+
+	;store number 1 in BC
+	ld a,[wNumber1+1]
+	ld d,a
+	ld a, [wNumber1]
+	ld e,a 
+
+
+
+	.done:
+
+	; hl holds the smaller number
+	; bc holds the bigger number
+
+	call loop_doubleBC_halfHL ; minimize HL, maximize BC, without changing the outcome of the multiplication.
+
+	; de = counter for loop
+	ld d,b
+	ld e,c 
+
+	; multiply by adding
+	.loop
+		add hl,bc ; 16 bit add
+
+		dec e
+		jnc .noCarry
+		dec d
+
+		.noCarry:
+		cp d,0
+		; .. finish code tommorow !!
 
 	ret
+
+
 
 Math_div:
 
@@ -190,4 +263,39 @@ Math_div:
 
 Math_mod:
 
+	ret
+
+
+
+
+; a general div routine
+Common_div::
+
+	ret
+
+
+; if HL can be halfed without losing a set bit, then half HL and double BC
+; repet the comment above until hl can not be halved
+; used HL and BC
+loop_doubleBC_halfHL::
+	push af
+	
+	.loop:
+		ld a,l 
+		and a,1
+		jne .done ; HL can not be halved
+
+		; half hl
+		srl h
+		rr l
+
+		; double bc
+		sla c
+		rl b
+
+		jp .loop
+
+
+	.done:
+	pop af
 	ret
