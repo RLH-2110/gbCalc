@@ -18,7 +18,6 @@ wResultError:: db ; boolean
 wResultNegative:: db ; z = positive, nz = negative
 wNumber0Negative:: db ; z = positive, nz = negative
 wNumber1Negative:: db ; z = positive, nz = negative
-wNumberXNegative:: db ; z = positive, nz = negative
 
 SECTION "Input Variables", WRAM0
 wCurKeys:: db
