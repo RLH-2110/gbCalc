@@ -84,7 +84,7 @@ Math_add:
 	
 	ld a,h ; 
 	and a,%1000_0000 ; only select the sign
-	jp z,.done ; if there is no sign, skip
+	jr z,.done ; if there is no sign, skip
 
 	; overflow between numbers with the same signs will be treated as an error.
 
@@ -95,7 +95,7 @@ Math_add:
 	ld a,[wNumber1+1]
 	and a, %1000_0000 ; only get the sign
 	cp a,b ; same sign?
-	jp nz,.done ; if different sign, jump over error code
+	jr nz,.done ; if different sign, jump over error code
 
 	;same sign found!
 	ld a,$ff
@@ -135,7 +135,7 @@ Math_sub:
 
 
 	and a,%1000_0000 ; only select the sign
-	jp z,.done ; if there is no sign, skip
+	jr z,.done ; if there is no sign, skip
 
 
 ; overflow between numbers with the same signs will be treated as an error.
@@ -147,7 +147,7 @@ Math_sub:
 	;if number0 = -
 	ld a,[wNumber0Negative]
 	or a,a ; reset flags
-	jp z,.skip1
+	jr z,.skip1
 
 	inc b
 	.skip1:
@@ -155,7 +155,7 @@ Math_sub:
 	;if number1 = -
 	ld a,[wNumber1Negative]
 	or a,a ; reset flags
-	jp z,.skip2
+	jr z,.skip2
 
 	inc b
 	.skip2:
@@ -163,7 +163,7 @@ Math_sub:
 
 	ld a,b
 	cp a,2
-	jp nz,.done ; if different uneven amount of '-', jump over error code
+	jr nz,.done ; if different uneven amount of '-', jump over error code
 
 	;even amount of minus!
 	ld a,$ff
@@ -183,21 +183,21 @@ Math_sub:
 Math_mul:
 	
 	; see what number is bigger
-	ld a,[wNumber1+1]
-	ld b,a
 	ld a,[wNumber0+1]
+	ld b,a
+	ld a,[wNumber1+1]
 
 	cp a,b
-	jc .swap ; num0 is bigger than num1
-	jp nz,.noSwap ; number 1 is bigger than number 0 AND we dont need to check the least significant byte
+	jr c, .swap ; num0 is bigger than num1
+	jr nz,.noSwap ; number 1 is bigger than number 0 AND we dont need to check the least significant byte
 
 	; compare least significant byte
-	ld a,[wNumber1]
-	ld b,a
 	ld a,[wNumber0]
+	ld b,a
+	ld a,[wNumber1]
 
 	cp a,b
-	jp c, .swap ; num0 is bigger than num1
+	;jr c, .swap ; num0 is bigger than num1 (we can just fall though)
 
 	.swap:
 	
@@ -209,11 +209,11 @@ Math_mul:
 
 	;store number 0 in BC
 	ld a,[wNumber0+1]
-	ld d,a
+	ld b,a
 	ld a, [wNumber0]
-	ld e,a 
+	ld c,a 
 
-	jp done
+	jr .done
 	.noSwap:
 
 	; store number 0 in HL
@@ -224,9 +224,9 @@ Math_mul:
 
 	;store number 1 in BC
 	ld a,[wNumber1+1]
-	ld d,a
+	ld b,a
 	ld a, [wNumber1]
-	ld e,a 
+	ld c,a 
 
 
 
@@ -235,23 +235,67 @@ Math_mul:
 	; hl holds the smaller number
 	; bc holds the bigger number
 
+
+
+	; if HL != 0, then calculate
+	ld a,l
+	or a,a ; set flags
+	jr nz,.do
+	ld a,h
+	or a,a ; set flags
+	jp nz,.do 
+
+	jr .save ; hl is zero, we are done with the multiplication before we even calculate
+
+
+
+	.do
 	call loop_doubleBC_halfHL ; minimize HL, maximize BC, without changing the outcome of the multiplication.
 
-	; de = counter for loop
-	ld d,b
-	ld e,c 
+	; de = counter for loop (e is inverted, since I cant detect it when e overflows with a dec)
+	; for e FF = 00 and 00 = FF
+	ld d,h
+	ld e,l 
+
+	ld a,e
+	xor a,$ff ;invert
+	ld e,a
+
+
+	; set hl to 0 (will contain result later)
+	ld h,0
+	ld l,0
 
 	; multiply by adding
 	.loop
 		add hl,bc ; 16 bit add
 
-		dec e
-		jnc .noCarry
+		;decrement counter
+		inc e
+		jr nz, .noCarry
 		dec d
 
 		.noCarry:
-		cp d,0
-		; .. finish code tommorow !!
+		ld a,$00 ; value to compare against
+
+		; if de != 00ff, then contine the loop
+		cp a,d
+		jr nz,.loop
+
+		ld a,$FF ; for e FF = 00
+		cp a,e
+		jr nz,.loop
+
+
+		; meaning, if d overflows, we know that we need to break out of the loop
+
+	.save
+
+	; store result into wResult (little endian)
+	ld a,h
+	ld [wResult+1],a
+	ld a,l
+	ld [wResult],a
 
 	ret
 
@@ -277,13 +321,17 @@ Common_div::
 ; if HL can be halfed without losing a set bit, then half HL and double BC
 ; repet the comment above until hl can not be halved
 ; used HL and BC
+; CANT HANDLE HL BEING 0!!
 loop_doubleBC_halfHL::
 	push af
 	
+	; hl is 0, dont go into the loop
+	jr .done
+
 	.loop:
 		ld a,l 
 		and a,1
-		jne .done ; HL can not be halved
+		jr nz, .done ; HL can not be halved
 
 		; half hl
 		srl h
@@ -293,7 +341,7 @@ loop_doubleBC_halfHL::
 		sla c
 		rl b
 
-		jp .loop
+		jr .loop
 
 
 	.done:
