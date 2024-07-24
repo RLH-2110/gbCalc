@@ -176,14 +176,14 @@ Math_sub:
 	.mmp:
 	ld a,h
 	and a,%1000_0000 ; only select the sign
-	jr z,.done ; if there is no sign, skip
+	jr nz,.done ; if there is no sign, skip
 	jr .err 
 
 	; + + -
 	.pmm:
 	ld a,h
 	and a,%1000_0000 ; only select the sign
-	jr nz,.done ; if there is a sign, skip
+	jr z,.done ; if there is a sign, skip
 
 	.err
 	ld a,$ff
