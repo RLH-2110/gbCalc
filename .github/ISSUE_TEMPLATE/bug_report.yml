@@ -17,7 +17,7 @@ body:
     id: expected-behavior
     attributes:
       label: Expected Behavior
-      description: What did you expect to happen? (Optinal)
+      description: What did you expect to happen? (Optional)
       placeholder: I expected the calculator to show an error
     validations:
       required: false
