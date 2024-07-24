@@ -84,7 +84,7 @@ Math_add:
 	
 	ld a,h ; 
 	and a,%1000_0000 ; only select the sign
-	jp z,.done ; if there is no sign, skip
+	jr z,.done ; if there is no sign, skip
 
 	; overflow between numbers with the same signs will be treated as an error.
 
@@ -95,7 +95,7 @@ Math_add:
 	ld a,[wNumber1+1]
 	and a, %1000_0000 ; only get the sign
 	cp a,b ; same sign?
-	jp nz,.done ; if different sign, jump over error code
+	jr nz,.done ; if different sign, jump over error code
 
 	;same sign found!
 	ld a,$ff
@@ -134,10 +134,6 @@ Math_sub:
 	ld h,a
 
 
-	and a,%1000_0000 ; only select the sign
-	jp z,.done ; if there is no sign, skip
-
-
 ; overflow between numbers with the same signs will be treated as an error.
 
 	;check if there is an even amount of '-' (meaning we are adding)
@@ -147,7 +143,7 @@ Math_sub:
 	;if number0 = -
 	ld a,[wNumber0Negative]
 	or a,a ; reset flags
-	jp z,.skip1
+	jr z,.skip1
 
 	inc b
 	.skip1:
@@ -155,7 +151,7 @@ Math_sub:
 	;if number1 = -
 	ld a,[wNumber1Negative]
 	or a,a ; reset flags
-	jp z,.skip2
+	jr z,.skip2
 
 	inc b
 	.skip2:
@@ -163,9 +159,33 @@ Math_sub:
 
 	ld a,b
 	cp a,2
-	jp nz,.done ; if different uneven amount of '-', jump over error code
+	jr nz,.done ; if uneven amount of '-', jump over error code
+
 
 	;even amount of minus!
+
+
+	; get scenario
+	;if number0 = +, then jump to pmm
+	ld a,[wNumber0Negative]
+	or a,a ; reset flags
+	jr z,.pmm
+
+
+	; - - +
+	.mmp:
+	ld a,h
+	and a,%1000_0000 ; only select the sign
+	jr nz,.done ; if there is no sign, skip
+	jr .err 
+
+	; + + -
+	.pmm:
+	ld a,h
+	and a,%1000_0000 ; only select the sign
+	jr z,.done ; if there is a sign, skip
+
+	.err
 	ld a,$ff
 	ld [wResultError],a
 
