@@ -134,9 +134,6 @@ Math_sub:
 	ld h,a
 
 
-	and a,%1000_0000 ; only select the sign
-	jr z,.done ; if there is no sign, skip
-
 
 ; overflow between numbers with the same signs will be treated as an error.
 
@@ -163,9 +160,33 @@ Math_sub:
 
 	ld a,b
 	cp a,2
-	jr nz,.done ; if different uneven amount of '-', jump over error code
+
+	jr nz,.done ; if uneven amount of '-', jump over error code
 
 	;even amount of minus!
+
+
+	; get scenario
+	;if number0 = +, then jump to pmm
+	ld a,[wNumber0Negative]
+	or a,a ; reset flags
+	jr z,.pmm
+
+
+	; - - +
+	.mmp:
+	ld a,h
+	and a,%1000_0000 ; only select the sign
+	jr nz,.done ; if there is no sign, skip
+	jr .err 
+
+	; + + -
+	.pmm:
+	ld a,h
+	and a,%1000_0000 ; only select the sign
+	jr z,.done ; if there is a sign, skip
+
+	.err
 	ld a,$ff
 	ld [wResultError],a
 
