@@ -1,0 +1,37 @@
+name: Bug Report
+description: File a bug report.
+title: "[Bug]: "
+labels: ["bug",]
+assignees:
+  - rlh-2110
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: what happened and what steps did you take to get to the bug?
+      placeholder: The calculator created a black hole when I divided by zero.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen? (Optional)
+      placeholder: I expected the calculator to show an error
+    validations:
+      required: false
+  - type: textarea
+    id: emulator
+    attributes:
+      label: What emulator did you use? (or what GameBoy variation you used, if run on real hardware)
+      placeholder: Emulicious
+    validations:
+      required: true
+  - type: textarea
+    id: mail
+    attributes:
+      label: Optinal contact information
+      placeholder: Foo@bar.ipsum
+    validations:
+      required: false
