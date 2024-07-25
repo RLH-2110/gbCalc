@@ -82,9 +82,7 @@ Math_add:
 
 	add HL,BC ; add them
 	
-	ld a,h ; 
-	and a,%1000_0000 ; only select the sign
-	jr z,.done ; if there is no sign, skip
+
 
 	; overflow between numbers with the same signs will be treated as an error.
 
@@ -98,6 +96,22 @@ Math_add:
 	jr nz,.done ; if different sign, jump over error code
 
 	;same sign found!
+
+	or a,a ; set flags based on a
+	jr z, .ppp
+
+	.mpm: ; - + -
+		ld a,h ; 
+		and a,%1000_0000 ; only select the sign
+		jr nz,.done ; if there is a sign, skip
+		jr .err
+
+	.ppp: ; + + +
+		ld a,h ; 
+		and a,%1000_0000 ; only select the sign
+		jr z,.done ; if there is no sign, skip
+	
+	.err
 	ld a,$ff
 	ld [wResultError],a
 
