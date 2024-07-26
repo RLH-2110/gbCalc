@@ -491,4 +491,6 @@ ErrorResult:
 	ld bc,5 	; bytes to write
 	ld d,tile_e ; value to write
 	call SetMem
+
+	pop de ; we are called via displayResult, who pushed DE
 	ret

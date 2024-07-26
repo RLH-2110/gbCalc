@@ -84,6 +84,15 @@ ld bc,6
 ld d,0
 call SetMem ; clears wNumber0, wNumber1 and wResult
 
+
+;copy multiplication loop into ram
+ld de,Math_mul.loop
+ld hl,Math_mul_loop_ram
+ld bc,$FF
+call Memcpy
+
+
+
 xor a,a ; a = 0
 ld [wFinishedWork],a
 ld [wPrintResult],a

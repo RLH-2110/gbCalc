@@ -158,7 +158,7 @@ Math_sub:
 	;if number0 = -
 	ld a,[wNumber0Negative]
 	or a,a ; reset flags
-	jr z,.skip1
+	jr z,.skip1 ; positive
 
 	inc b
 	.skip1:
@@ -166,7 +166,7 @@ Math_sub:
 	;if number1 = -
 	ld a,[wNumber1Negative]
 	or a,a ; reset flags
-	jr z,.skip2
+	jr z,.skip2 ; positive
 
 	inc b
 	.skip2:
@@ -232,7 +232,7 @@ Math_mul:
 	ld a,[wNumber1]
 
 	cp a,b
-	;jr c, .swap ; num0 is bigger than num1 (we can just fall though)
+	jr nc, .noSwap ; num1 is bigger than num0
 
 	.swap:
 	
@@ -271,7 +271,93 @@ Math_mul:
 	; bc holds the bigger number
 
 
+	; set up bounds checking
+		ld d,0 ; counter for negative numbers
 
+		;if number0 = -
+		ld a,[wNumber0Negative]
+		or a,a ; reset flags
+		jr z,.skip1 ; positive
+
+		inc d
+		.skip1:
+
+		;if number1 = -
+		ld a,[wNumber1Negative]
+		or a,a ; reset flags
+		jr z,.skip2 ; positive
+
+		inc d
+		.skip2
+
+		ld a,d ; get the counter
+		or a,a ; set flags for a
+		jr z,.normalBounds ; if counter == 0, normal bounds
+
+		cp a,2
+		jr z,.makeNumsPositive ; if counter == 2, make numbers psoitive, normal bounds
+
+
+
+		; negative bounds
+		ld a, %001_01_000 ; opcode: jr z,
+		ld [Math_mul_loop_ram + .boundChek - Math_mul.loop],a ; replace opcode in the bounds check
+		jr .zeroCheck
+
+	.normalBounds:
+		ld a, %001_00_000; opcode: jr nz,
+		ld [Math_mul_loop_ram + .boundChek - Math_mul.loop],a ; replace opcode in the bounds check
+		jr .zeroCheck
+
+
+	.makeNumsPositive:
+
+		;check for illegal case
+		; TODO CHECK IF EITHER HL OR BC IS 8000!
+
+
+		; invert hl
+		ld a,l
+		xor a,$ff
+		inc a
+		ld l,a
+		jr c,.incH
+
+		ld a,h
+		xor a,$ff
+		ld h,a
+		jr .invBC
+
+		.incH:
+		ld a,h
+		xor a,$ff
+		inc a
+		ld h,a
+
+
+		; invert BC
+		.invBC:
+
+		ld a,c
+		xor a,$ff
+		inc a
+		ld c,a
+		jr c,.incB
+
+		ld a,b
+		xor a,$ff
+		ld b,a
+		jr .normalBounds
+
+		.incB:
+		ld a,b
+		xor a,$ff
+		inc a
+		ld b,a
+
+		jr .normalBounds
+
+	.zeroCheck:
 	; if HL != 0, then calculate
 	ld a,l
 	or a,a ; set flags
@@ -302,8 +388,16 @@ Math_mul:
 	ld l,0
 
 	; multiply by adding
-	.loop
+	jp Math_mul_loop_ram ; reroute to ram, so self modifying code can work
+
+	Math_mul.loop::
 		add hl,bc ; 16 bit add
+
+		;bounds checks here
+		ld a,h
+		and a,%1000_0000 ; get sign
+		.boundChek: ; label for self modifiying code
+		jr nz,.err
 
 		;decrement counter
 		inc e
@@ -315,11 +409,11 @@ Math_mul:
 
 		; if de != 00ff, then contine the loop
 		cp a,d
-		jr nz,.loop
+		jr nz,Math_mul.loop
 
 		ld a,$FF ; for e FF = 00
 		cp a,e
-		jr nz,.loop
+		jr nz,Math_mul.loop
 
 
 		; meaning, if d overflows, we know that we need to break out of the loop
@@ -334,6 +428,11 @@ Math_mul:
 
 	ret
 
+	.err:
+	ld a,$ff
+	ld [wResultError],a
+
+	ret
 
 
 Math_div:
