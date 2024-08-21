@@ -295,7 +295,7 @@ Math_mul:
 		jr z,.normalBounds ; if counter == 0, normal bounds
 
 		cp a,2
-		jr z,.makeNumsPositive ; if counter == 2, make numbers psoitive, normal bounds
+		jr z,.makeNumsPositive ; if counter == 2, make numbers positive, normal bounds
 
 
 
@@ -312,16 +312,13 @@ Math_mul:
 
 	.makeNumsPositive:
 
-		;check for illegal case
-		; TODO CHECK IF EITHER HL OR BC IS 8000!
-
 
 		; invert hl
 		ld a,l
 		xor a,$ff
 		inc a
 		ld l,a
-		jr c,.incH
+		jr z,.incH ; jmp carry, but INC A does not set carry, so we check for Z
 
 		ld a,h
 		xor a,$ff
@@ -342,7 +339,7 @@ Math_mul:
 		xor a,$ff
 		inc a
 		ld c,a
-		jr c,.incB
+		jr z,.incB
 
 		ld a,b
 		xor a,$ff
