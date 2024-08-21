@@ -178,3 +178,32 @@ adjutsBCD::
 .shifta4
 	
 ret
+
+
+; negates BC (-5 -> 5. 10 -> - 10)
+; input: BC
+;  uses: BC, AF
+;output: BC (N flag set on overfow)
+negateBC::
+	
+	; load into a, and invert a
+	ld a,c
+	xor a,$FF
+	inc a
+	ld c,a
+	jr z,.incB
+
+	.negB:
+	ld a,b
+	xor a,$FF
+	ld b,a
+
+
+	jr .end
+	.incB:
+		inc b
+		jr .negB
+
+	.end:
+
+ret
