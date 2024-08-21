@@ -33,3 +33,8 @@ wTmpL:: db
 section "control", WRAM0
 wFinishedWork:: db ; z = finished work, nz = did not finish work
 wPrintResult:: db ; z = do not print, nz = print
+
+
+
+section "MUL code RAM", WRAM0[$CF00]
+Math_mul_loop_ram:: ds $FF ; reserve the rest of the memory for the multiplication loop

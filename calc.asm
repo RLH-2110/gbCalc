@@ -148,6 +148,7 @@ Math_sub:
 	ld h,a
 
 
+
 ; overflow between numbers with the same signs will be treated as an error.
 
 	;check if there is an even amount of '-' (meaning we are adding)
@@ -157,7 +158,7 @@ Math_sub:
 	;if number0 = -
 	ld a,[wNumber0Negative]
 	or a,a ; reset flags
-	jr z,.skip1
+	jr z,.skip1 ; positive
 
 	inc b
 	.skip1:
@@ -165,7 +166,7 @@ Math_sub:
 	;if number1 = -
 	ld a,[wNumber1Negative]
 	or a,a ; reset flags
-	jr z,.skip2
+	jr z,.skip2 ; positive
 
 	inc b
 	.skip2:
@@ -173,8 +174,8 @@ Math_sub:
 
 	ld a,b
 	cp a,2
-	jr nz,.done ; if uneven amount of '-', jump over error code
 
+	jr nz,.done ; if uneven amount of '-', jump over error code
 
 	;even amount of minus!
 
@@ -215,8 +216,221 @@ Math_sub:
 
 
 Math_mul:
+	
+	; see what number is bigger
+	ld a,[wNumber0+1]
+	ld b,a
+	ld a,[wNumber1+1]
+
+	cp a,b
+	jr c, .swap ; num0 is bigger than num1
+	jr nz,.noSwap ; number 1 is bigger than number 0 AND we dont need to check the least significant byte
+
+	; compare least significant byte
+	ld a,[wNumber0]
+	ld b,a
+	ld a,[wNumber1]
+
+	cp a,b
+	jr nc, .noSwap ; num1 is bigger than num0
+
+	.swap:
+	
+	; store number 1 in HL
+	ld a,[wNumber1+1]
+	ld h,a
+	ld a, [wNumber1]
+	ld l,a
+
+	;store number 0 in BC
+	ld a,[wNumber0+1]
+	ld b,a
+	ld a, [wNumber0]
+	ld c,a 
+
+	jr .done
+	.noSwap:
+
+	; store number 0 in HL
+	ld a,[wNumber0+1]
+	ld h,a
+	ld a, [wNumber0]
+	ld l,a
+
+	;store number 1 in BC
+	ld a,[wNumber1+1]
+	ld b,a
+	ld a, [wNumber1]
+	ld c,a 
+
+
+
+	.done:
+
+	; hl holds the smaller number
+	; bc holds the bigger number
+
+
+	; set up bounds checking
+		ld d,0 ; counter for negative numbers
+
+		;if number0 = -
+		ld a,[wNumber0Negative]
+		or a,a ; reset flags
+		jr z,.skip1 ; positive
+
+		inc d
+		.skip1:
+
+		;if number1 = -
+		ld a,[wNumber1Negative]
+		or a,a ; reset flags
+		jr z,.skip2 ; positive
+
+		inc d
+		.skip2
+
+		ld a,d ; get the counter
+		or a,a ; set flags for a
+		jr z,.normalBounds ; if counter == 0, normal bounds
+
+		cp a,2
+		jr z,.makeNumsPositive ; if counter == 2, make numbers positive, normal bounds
+
+
+
+		; negative bounds
+		ld a, %001_01_000 ; opcode: jr z,
+		ld [Math_mul_loop_ram + .boundChek - Math_mul.loop],a ; replace opcode in the bounds check
+		jr .zeroCheck
+
+	.normalBounds:
+		ld a, %001_00_000; opcode: jr nz,
+		ld [Math_mul_loop_ram + .boundChek - Math_mul.loop],a ; replace opcode in the bounds check
+		jr .zeroCheck
+
+
+	.makeNumsPositive:
+
+
+		; invert hl
+		ld a,l
+		xor a,$ff
+		inc a
+		ld l,a
+		jr z,.incH ; jmp carry, but INC A does not set carry, so we check for Z
+
+		ld a,h
+		xor a,$ff
+		ld h,a
+		jr .invBC
+
+		.incH:
+		ld a,h
+		xor a,$ff
+		inc a
+		ld h,a
+
+
+		; invert BC
+		.invBC:
+
+		ld a,c
+		xor a,$ff
+		inc a
+		ld c,a
+		jr z,.incB
+
+		ld a,b
+		xor a,$ff
+		ld b,a
+		jr .normalBounds
+
+		.incB:
+		ld a,b
+		xor a,$ff
+		inc a
+		ld b,a
+
+		jr .normalBounds
+
+	.zeroCheck:
+	; if HL != 0, then calculate
+	ld a,l
+	or a,a ; set flags
+	jr nz,.do
+	ld a,h
+	or a,a ; set flags
+	jp nz,.do 
+
+	jr .save ; hl is zero, we are done with the multiplication before we even calculate
+
+
+
+	.do
+	call loop_doubleBC_halfHL ; minimize HL, maximize BC, without changing the outcome of the multiplication.
+
+	; de = counter for loop (e is inverted, since I cant detect it when e overflows with a dec)
+	; for e FF = 00 and 00 = FF
+	ld d,h
+	ld e,l 
+
+	ld a,e
+	xor a,$ff ;invert
+	ld e,a
+
+
+	; set hl to 0 (will contain result later)
+	ld h,0
+	ld l,0
+
+	; multiply by adding
+	jp Math_mul_loop_ram ; reroute to ram, so self modifying code can work
+
+	Math_mul.loop::
+		add hl,bc ; 16 bit add
+
+		;bounds checks here
+		ld a,h
+		and a,%1000_0000 ; get sign
+		.boundChek: ; label for self modifiying code
+		jr nz,.err
+
+		;decrement counter
+		inc e
+		jr nz, .noCarry
+		dec d
+
+		.noCarry:
+		ld a,$00 ; value to compare against
+
+		; if de != 00ff, then contine the loop
+		cp a,d
+		jr nz,Math_mul.loop
+
+		ld a,$FF ; for e FF = 00
+		cp a,e
+		jr nz,Math_mul.loop
+
+
+		; meaning, if d overflows, we know that we need to break out of the loop
+
+	.save
+
+	; store result into wResult (little endian)
+	ld a,h
+	ld [wResult+1],a
+	ld a,l
+	ld [wResult],a
 
 	ret
+
+	.err:
+	ld a,$ff
+	ld [wResultError],a
+
+	ret
+
 
 Math_div:
 
@@ -224,4 +438,43 @@ Math_div:
 
 Math_mod:
 
+	ret
+
+
+
+
+; a general div routine
+Common_div::
+
+	ret
+
+
+; if HL can be halfed without losing a set bit, then half HL and double BC
+; repet the comment above until hl can not be halved
+; used HL and BC
+; CANT HANDLE HL BEING 0!!
+loop_doubleBC_halfHL::
+	push af
+	
+	; hl is 0, dont go into the loop
+	jr .done
+
+	.loop:
+		ld a,l 
+		and a,1
+		jr nz, .done ; HL can not be halved
+
+		; half hl
+		srl h
+		rr l
+
+		; double bc
+		sla c
+		rl b
+
+		jr .loop
+
+
+	.done:
+	pop af
 	ret

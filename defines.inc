@@ -60,4 +60,3 @@ include "hardware.inc"
 
 	def upper_cursor equ $12
 	def lower_cursor equ $13
-
