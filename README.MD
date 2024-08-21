@@ -18,7 +18,7 @@ I use [emulicious](https://emulicious.net/downloads/) to test and play the rom, 
 
 # Controls
 
-D-pad up/down		- circle values  
+D-pad up/down		- cycle values  
 D-pad right/left	- move cursor  
   
 Start			- clears selected number  
