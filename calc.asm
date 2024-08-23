@@ -335,25 +335,9 @@ Math_mul:
 		; invert BC
 		.invBC:
 
-		;ld a,c
-		;xor a,$ff
-		;inc a
-		;ld c,a
-		;jr z,.incB
-;
-		;ld a,b
-		;xor a,$ff
-		;ld b,a
 		call negateBC
 		jr .normalBounds
 
-		;.incB:
-		;ld a,b
-		;xor a,$ff
-		;inc a
-		;ld b,a
-
-		;jr .normalBounds
 
 	.zeroCheck:
 	; if HL != 0, then calculate
