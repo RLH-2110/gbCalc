@@ -24,5 +24,5 @@ Start			- clears selected number
 a				- starts calulation  
 
 planed:  
-b       - store value  
-select  - load value
+b       - store result  
+select  - load stored value into selected field
