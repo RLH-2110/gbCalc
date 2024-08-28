@@ -191,11 +191,28 @@ Main:
     .checkA:
       ld a, [wNewKeys]
       and a, PADF_A
-      jr z, .InputDone
+      jr z, .checkB
       
       ; pressed!
       call Calculate
       
+
+    .checkB:
+      ld a, [wNewKeys]
+      and a, PADF_B
+      jr z, .checkStart
+      
+      ; pressed!
+      call StoreVal
+
+    .checkStart:
+      ld a, [wNewKeys]
+      and a, PADF_START
+      jr z, .InputDone
+      
+      ; pressed!
+      call LoadVal
+
   .InputDone:
     xor a,a ; a = 0
     ld [wFinishedWork],a ; no more work to do
