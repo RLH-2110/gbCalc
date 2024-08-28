@@ -335,24 +335,9 @@ Math_mul:
 		; invert BC
 		.invBC:
 
-		ld a,c
-		xor a,$ff
-		inc a
-		ld c,a
-		jr z,.incB
-
-		ld a,b
-		xor a,$ff
-		ld b,a
+		call negateBC
 		jr .normalBounds
 
-		.incB:
-		ld a,b
-		xor a,$ff
-		inc a
-		ld b,a
-
-		jr .normalBounds
 
 	.zeroCheck:
 	; if HL != 0, then calculate
@@ -433,10 +418,25 @@ Math_mul:
 
 
 Math_div:
+	call Common_div
+	
+	; store result into wResult (little endian)
+	ldh a,[wCounter+1]
+	ld [wResult+1],a
+	ldh a,[wCounter]
+	ld [wResult],a
+	
 
 	ret
 
 Math_mod:
+	call Common_div
+
+	; store result into wResult (little endian)
+	ld a,h
+	ld [wResult+1],a
+	ld a,l
+	ld [wResult],a
 
 	ret
 
@@ -444,8 +444,223 @@ Math_mod:
 
 
 ; a general div routine
+;uses:
+; AF, HL, BC, DE, wCounter, wTmpNumber
+;output:
+; wCounter = result
+; HL = remainder
 Common_div::
 
+	; wCounter will store the result
+	xor a,a
+	ldh [wCounter],a
+	ldh [wCounter+1],a
+
+
+	; load first number into hl
+	ld a,[wNumber0+1]
+	ld h,a
+	ld a,[wNumber0]
+	ld l,a
+
+
+	;see if number 1 is bigger than number 0
+
+		;load second number into DE (tmp)
+		ld a,[wNumber1]
+		ld e,a
+		ld a,[wNumber1+1]
+		ld d,a
+
+
+		; if number 1 > number0
+		; like cp h,d
+		ld a,h
+		cp a,d
+		jr c, .notNormal
+		jr nz, .normal
+
+		; like cp l,e
+		ld a,l
+		cp a,e
+		jr nc, .normal 
+
+		.notNormal:
+		; number1 > number0!
+
+		;result was already initalized to 0
+		;remainder is already initalized to number0
+		ret ; we got our values now
+
+	.normal:
+
+	; see if number 1 is 0
+		ld a,d
+		or a,a ; set flags
+		jr nz,.notZero
+
+		ld a,e
+		or a,a ; set flags
+		jr nz,.notZero
+
+		; number1 is zero!
+
+		;set error
+		ld a,$ff
+		ld [wResultError],a
+
+		ret
+
+	.notZero:
+
+	;load second number into wTmpNumber
+	ld a,[wNumber1]
+	ldh [wTmpNumber],a
+	ld a,[wNumber1+1]
+	ldh [wTmpNumber+1],a
+
+	; HL is number0 wTmpNumber is number1
+
+
+	.loop:
+
+		;load second number into bc
+		ldh a,[wTmpNumber]
+		ld c,a
+		ldh a,[wTmpNumber+1]
+		ld b,a
+		
+		ld de,1 ; counter for how much fits into HL
+		call .findBigestSub
+
+
+		; apply
+		call negateBC ; invert it (there is no 16 but sub, so we do an add with the invese number)
+		add hl,bc 
+
+
+
+		; add wCounter,de
+		ldh a,[wCounter]
+		add a,e
+		ldh [wCounter],a
+
+		ldh a,[wCounter+1]
+		jr nc, .skipCarry ; if add a,e had no carry
+
+		; we had a carry
+		inc d
+
+		;upper half
+		.skipCarry:
+		add a,d
+		ldh [wCounter+1],a
+
+	jr .evaluateLoopExit ; compares and jumps if HL is bigger or equal to wTmpNumber
+	
+	.done:
+
+	ret
+
+; compares and jumps if HL is bigger or equal to wTmpNumber
+.evaluateLoopExit:
+
+	; like cp h,[wTmpNumber+1]
+	ldh a,[wTmpNumber+1]
+	ld d,a
+
+	ld a,h
+	cp a,d
+	jr c, .done
+	jr nz, .loop
+	; now H == D
+
+	; like cp l,[wTmpNumber]
+	ldh a,[wTmpNumber]
+	ld e,a
+
+	ld a,l
+	cp a,e
+	jr nc, .loop 
+
+
+	; exit  loop
+	jr .done
+
+
+; finds biggest substraction we can do for the divide
+;input
+;HL : number that we divide from
+;BC : how much to divide by
+;DE : how much we add to the result
+; wNumber1Negative
+;output
+;BC : how much to substract
+;DE : how much we add to the result
+;uses
+; HL, BC, DE, AF, wTmpByte
+.findBigestSub:
+	
+	; sign of wNumber1 a
+	ld a,[wNumber1Negative]
+	ldh [wTmpByte],a
+	; z = positive ; nz = negative
+
+	.FBC_loop:
+		push bc
+
+		; shift bc left
+		sla c
+		rl b
+
+		push bc
+
+		; get sign of b, and store it in b
+		ld a,b
+		and a, %1000_0000
+		ld b, a 
+
+		; if the sign changed, we got to far!
+		ldh a,[wTmpByte]
+		cp a,b
+		jr nz, .cleanUp2 ; escape loop
+		pop bc 
+
+		
+
+		;check if BC is still smaller than HL
+
+		; like cp h,b
+		ld a,h
+		cp a,b
+		jr c, .cleanUp
+		jr nz, .skip ; bc is definatly smaller, so we dont need the next check
+
+		; like cp l,c
+		ld a,l
+		cp a,c
+		jr c, .cleanUp 
+
+		.skip:
+
+		; bc is a correct value, so we dont need the backup anymore
+		inc sp 
+		inc sp
+		
+		; we multiplied bc by 2, now we do the same with the counter
+		; shift de left
+		sla e
+		rl d
+
+		jr .FBC_loop
+
+	.cleanUp2:
+		pop bc
+	.cleanUp:
+		pop bc
+	.FBC_done:
+
+	
 	ret
 
 
