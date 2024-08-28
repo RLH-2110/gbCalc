@@ -191,7 +191,7 @@ negateBC::
 	xor a,$FF
 	inc a
 	ld c,a
-	jr z,.incB
+	jr z,.decB ; if inc a == 0
 
 	.negB:
 	ld a,b
@@ -200,8 +200,8 @@ negateBC::
 
 
 	jr .end
-	.incB:
-		inc b
+	.decB:
+		dec b ; if we decrement now, its the same as incremening the inverted value
 		jr .negB
 
 	.end:

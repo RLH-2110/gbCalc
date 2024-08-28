@@ -1,6 +1,7 @@
 SECTION "highScratch",HRAM[$FF80]
 wCounter::	 dw ; counter that can be used
 wTmpNumber:: dw ; saves a number
+wTmpByte:: db ; saves a byte
 
 SECTION "stack",HRAM[$FFE0]
 ds $1E ; reserve $FFE0 to %FFFE as stack memory (30 bytes (15 pushes))

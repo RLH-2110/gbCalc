@@ -418,6 +418,14 @@ Math_mul:
 
 
 Math_div:
+	call Common_div
+	
+	; store result into wResult (little endian)
+	ldh a,[wCounter+1]
+	ld [wResult+1],a
+	ldh a,[wCounter]
+	ld [wResult],a
+	
 
 	ret
 
@@ -465,11 +473,13 @@ Common_div::
 		ld d,a
 
 
+		; if number 1 > number0
 		; like cp h,d
 		ld a,h
 		cp a,d
 		jr c, .notNormal
-		
+		jr nz, .normal
+
 		; like cp l,e
 		ld a,l
 		cp a,e
@@ -534,15 +544,17 @@ Common_div::
 		ldh a,[wCounter]
 		add a,e
 		ldh [wCounter],a
-		jr nc, .skipCarry
 
+		ldh a,[wCounter+1]
+		jr nc, .skipCarry ; if add a,e had no carry
+
+		; we had a carry
 		inc d
 
 		;upper half
 		.skipCarry:
-		ldh a,[wCounter]
 		add a,d
-		ldh [wCounter],a
+		ldh [wCounter+1],a
 
 	jr .evaluateLoopExit ; compares and jumps if HL is bigger or equal to wTmpNumber
 	
@@ -581,41 +593,76 @@ Common_div::
 ;HL : number that we divide from
 ;BC : how much to divide by
 ;DE : how much we add to the result
+; wNumber1Negative
 ;output
 ;BC : how much to substract
 ;DE : how much we add to the result
+;uses
+; HL, BC, DE, AF, wTmpByte
 .findBigestSub:
-	push bc
+	
+	; sign of wNumber1 a
+	ld a,[wNumber1Negative]
+	ldh [wTmpByte],a
+	; z = positive ; nz = negative
 
 	.FBC_loop:
+		push bc
 
+		; shift bc left
+		sla c
+		rl b
 
-		call .evaluateLoopExit_FBS
+		push bc
+
+		; get sign of b, and store it in b
+		ld a,b
+		and a, %1000_0000
+		ld b, a 
+
+		; if the sign changed, we got to far!
+		ldh a,[wTmpByte]
+		cp a,b
+		jr nz, .cleanUp2 ; escape loop
+		pop bc 
+
+		
+
+		;check if BC is still smaller than HL
+
+		; like cp h,b
+		ld a,h
+		cp a,b
+		jr c, .cleanUp
+		jr nz, .skip ; bc is definatly smaller, so we dont need the next check
+
+		; like cp l,c
+		ld a,l
+		cp a,c
+		jr c, .cleanUp 
+
+		.skip:
+
+		; bc is a correct value, so we dont need the backup anymore
+		inc sp 
+		inc sp
+		
+		; we multiplied bc by 2, now we do the same with the counter
+		; shift de left
+		sla e
+		rl d
+
+		jr .FBC_loop
+
+	.cleanUp2:
+		pop bc
+	.cleanUp:
+		pop bc
 	.FBC_done:
 
-	pop bc
+	
 	ret
 
-
-
-; compares and jumps if BC is bigger than HL
-.evaluateLoopExit_FBS:
-
-	; like cp b,h
-	ld a,b
-	cp a,h
-	jr c, .FBC_done
-	jr nz, .FBC_loop
-	; now H == D
-
-	; like cp c,l
-	ld a,c
-	cp a,l
-	jr nc, .FBC_loop 
-
-
-	; exit  loop
-	jr .FBC_done
 
 ; if HL can be halfed without losing a set bit, then half HL and double BC
 ; repet the comment above until hl can not be halved
