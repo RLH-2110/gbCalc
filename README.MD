@@ -20,9 +20,8 @@ D-pad up/down		- cycle values
 D-pad right/left	- move cursor  
   
 Start			- clears selected number  
-  
-a				- starts calulation  
+Select  - load stored value into selected field
 
-planed:  
-b       - store result  
-select  - load stored value into selected field
+a				- starts calulation   
+b       - store the result
+
