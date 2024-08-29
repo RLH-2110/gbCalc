@@ -7,7 +7,7 @@ This is a simple calculator for the gameboy.
 Install [RGBDS](https://rgbds.gbdev.io/install/)  
 run `make`  
 
-# how do i use the .gb file?
+# how do I use the .gb file?
 
 you can use any gameboy, gameboy colour or gameboy advance emulator to execute the .gb file  
 I use [emulicious](https://emulicious.net/downloads/) to test and play the rom, it uses java and should run everywhere*  
