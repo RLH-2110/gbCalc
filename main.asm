@@ -58,6 +58,10 @@ ClearOAM:
 ; clear wFinishedWork
 ld [wFinishedWork],a ; a = 0
 
+; clear stored numbers (a is still 0)
+ld [wStoredNumber0],a 
+ld [wStoredNumber1],a 
+
 ; load objects
 ld de,Objects
 ld hl,_OAMRAM
@@ -191,11 +195,28 @@ Main:
     .checkA:
       ld a, [wNewKeys]
       and a, PADF_A
-      jr z, .InputDone
+      jr z, .checkB
       
       ; pressed!
       call Calculate
       
+
+    .checkB:
+      ld a, [wNewKeys]
+      and a, PADF_B
+      jr z, .checkStart
+      
+      ; pressed!
+      call StoreVal
+
+    .checkStart:
+      ld a, [wNewKeys]
+      and a, PADF_START
+      jr z, .InputDone
+      
+      ; pressed!
+      call LoadVal
+
   .InputDone:
     xor a,a ; a = 0
     ld [wFinishedWork],a ; no more work to do

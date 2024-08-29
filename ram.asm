@@ -19,10 +19,13 @@ section "numbers", WRAM0
 wNumber0:: dw
 wNumber1:: dw
 wResult:: dw
-wResultError:: db ; boolean
+wResultError:: db ; 0 = false FF = true
 wResultNegative:: db ; z = positive, nz = negative
 wNumber0Negative:: db ; z = positive, nz = negative
 wNumber1Negative:: db ; z = positive, nz = negative
+
+wStoredNumber0:: dw ; nuber stored by the user (init 0)
+wStoredNumber1:: dw ; (unused in this version) number stored by the user (init 0)
 
 SECTION "Input Variables", WRAM0
 wCurKeys:: db
