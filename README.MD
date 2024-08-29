@@ -1,5 +1,5 @@
 # gbCalc
-This is a simple calculator for the gameboy.
+This is a simple calculator for the gameboy.  
 [Code documentation](https://github.com/RLH-2110/gbCalc/wiki#gbcalc-overview)
 
 # how to compile
