@@ -58,6 +58,10 @@ ClearOAM:
 ; clear wFinishedWork
 ld [wFinishedWork],a ; a = 0
 
+; clear stored numbers (a is still 0)
+ld [wStoredNumber0],a 
+ld [wStoredNumber1],a 
+
 ; load objects
 ld de,Objects
 ld hl,_OAMRAM
