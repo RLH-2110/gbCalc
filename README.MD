@@ -1,5 +1,6 @@
 # gbCalc
 This is a simple calculator for the gameboy.
+[Code documentation](https://github.com/RLH-2110/gbCalc/wiki#gbcalc-overview)
 
 # how to compile
 
@@ -24,4 +25,3 @@ Select  - load stored value into selected field
 
 a				- starts calculation
 b       - store the result
-
