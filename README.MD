@@ -22,6 +22,6 @@ D-pad right/left	- move cursor
 Start			- clears selected number  
 Select  - load stored value into selected field
 
-a				- starts calulation   
+a				- starts calculation
 b       - store the result
 
