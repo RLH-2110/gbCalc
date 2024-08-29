@@ -21,7 +21,7 @@ D-pad right/left	- move cursor
   
 Start			- clears selected number  
   
-a				- starts calulation  
+a				- starts calculation
 
 planed:  
 b       - store result  

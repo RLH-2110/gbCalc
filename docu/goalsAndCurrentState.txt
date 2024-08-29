@@ -1,0 +1,37 @@
+Documentation for GB-Calc
+
+Sections:
+
+Goals 					- Line 11
+Current State			- Line 21
+Possible Improvements 	- Line 30
+
+
+
+Goals:
+
+The Goal is to program a Calculator for the Game Boy that can do basic arithmetic [+,-,*,/,% (Modulo)]
+The program should be able to save and reuse results for later calculations.
+
+The program should work with 16-Bit numbers, no decimal points
+
+
+
+
+Current State:
+
+The Program can do basic arithmetic [+,-,*,/,% (Modulo)]
+There is a basic system for loading numbers and storeing the result
+
+The progam works with 16-bit numbers, positive and negative
+
+
+
+Possible Improvements:
+
+The storing has no visible feedback at the moment, some visible or audible feedback would be a good addition.
+You can only store and load 1 value, multiple values would be better.
+You can only store the result, storing numbers would be nice.
+
+Performance is not really an issue, but I sometimes wait for VBlank, some waiting could be removed to increase performance by a tiny bit
+
