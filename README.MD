@@ -6,7 +6,7 @@ This is a simple calculator for the gameboy.
 
 you need [RGBDS](https://rgbds.gbdev.io/install/) to be installed:  
   
-Optionally, it's useful to have make installed:  
+Optionally, it's useful to have ***make*** installed:  
 (Linux Terminal) sudo apt-get install make  
 (Windows) https://gnuwin32.sourceforge.net/packages/make.htm  
   
