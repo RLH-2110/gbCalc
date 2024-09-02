@@ -9,19 +9,17 @@ run `make`
 
 # how do I use the .gb file?
 
-you can use any gameboy, gameboy colour or gameboy advance emulator to execute the .gb file  
-I use [emulicious](https://emulicious.net/downloads/) to test and play the rom, it uses java and should run everywhere*  
-
-\*except anywhere where java does not run
-
+you can use any Game Boy, Game Boy colour or Game Boy advance emulator to execute the .gb file.  
+I use [Emulicious](https://emulicious.net/downloads/) to test and play the ROM, it uses [Java](https://www.java.com/en/download/)
 
 # Controls
 
-D-pad up/down		- cycle values  
-D-pad right/left	- move cursor  
+D-pad up/down - increase/decrease selected field or change the sign or mathematical operation  
+D-pad right/left - move cursor  
   
-Start			- clears selected number  
-Select  - load stored value into selected field
+Start - clears selected number  
+Select - load stored value into selected field  
+  
+a - starts calculation  
+b - store the result for later use  
 
-a				- starts calculation
-b       - store the result
