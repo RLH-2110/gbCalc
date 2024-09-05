@@ -155,6 +155,7 @@ Main:
     	; pressed!
     	ld e,1
       call CursorHandler
+      jr .InputDone
 
     .CheckDown:
 		  ld a, [wNewKeys]
@@ -164,7 +165,7 @@ Main:
     	; pressed!
     	ld e,2
       call CursorHandler
-
+      jr .InputDone
 
     .CheckLeft
       ld a, [wNewKeys]
@@ -174,6 +175,7 @@ Main:
       ; pressed!
       ld e,3
       call CursorHandler
+      jr .InputDone
 
     .CheckRight:
       ld a, [wNewKeys]
@@ -183,6 +185,7 @@ Main:
       ; pressed!
       ld e,4
       call CursorHandler
+      jr .InputDone
 
     .checkSelect:
       ld a, [wNewKeys]
@@ -191,7 +194,8 @@ Main:
       
       ; pressed!
       call clearSelectedNumber
-    
+      jr .InputDone
+
     .checkA:
       ld a, [wNewKeys]
       and a, PADF_A
@@ -199,7 +203,7 @@ Main:
       
       ; pressed!
       call Calculate
-      
+      jr .InputDone
 
     .checkB:
       ld a, [wNewKeys]
@@ -208,7 +212,8 @@ Main:
       
       ; pressed!
       call StoreVal
-
+      jr .InputDone
+      
     .checkStart:
       ld a, [wNewKeys]
       and a, PADF_START
@@ -216,6 +221,7 @@ Main:
       
       ; pressed!
       call LoadVal
+      jr .InputDone
 
   .InputDone:
     xor a,a ; a = 0
