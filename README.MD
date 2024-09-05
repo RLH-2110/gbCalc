@@ -1,6 +1,8 @@
 # gbCalc
-This is a simple calculator for the gameboy.  
-[Code documentation](https://github.com/RLH-2110/gbCalc/wiki#gbcalc-overview)
+This is a simple calculator for the Game Boy.  
+It supports 16 bit Addition, Subtraction, Multiplication, Division, and Modulo.  
+The result of an operation can be stored and loaded later for further calculations.  
+Here is the [Code documentation](https://github.com/RLH-2110/gbCalc/wiki#gbcalc-overview)
 
 # how to compile
 
