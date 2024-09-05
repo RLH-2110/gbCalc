@@ -144,10 +144,8 @@ adjutsBCD::
 	ld a,[wDoubleDabble+2]
 	and a,$f0
 	; shift a right 4 times, no carry
-	rrc a
-	rrc a
-	rrc a
-	rrc a
+	swap a
+
 	inc a ; numbers start at one, not zero
 	ld [wDoubleDabble+3],a
 
@@ -161,10 +159,8 @@ adjutsBCD::
 	ld a,[wDoubleDabble+1]
 	and a,$f0
 	; shift a right 4 times, no carry
-	rrc a
-	rrc a
-	rrc a
-	rrc a
+	swap a
+	
 	inc a ; numbers start at one, not zero
 	ld [wDoubleDabble+1],a
 
