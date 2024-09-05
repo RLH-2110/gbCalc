@@ -170,11 +170,6 @@ adjutsBCD::
 
 	ret
 
-; shift a right 4 times, no carry
-.shifta4
-	
-ret
-
 
 ; negates BC (-5 -> 5. 10 -> - 10)
 ; input: BC
