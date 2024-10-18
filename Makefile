@@ -14,7 +14,7 @@ OBJ_FILES := $(ASM_FILES:.asm=.o)
 ASM := rgbasm
 LINK := rgblink
 FIX := rgbfix
-ASMFLAGS := -L
+ASMFLAGS := 
 FIXFLAGS := -v -p 0xff
 
 # Define rules
