@@ -3,7 +3,7 @@ This is a simple calculator for the Game Boy.
 It supports 16 bit Addition, Subtraction, Multiplication, Division, and Modulo.  
 The result of an operation can be stored and loaded later for further calculations.  
 Here is the [Code documentation](https://github.com/RLH-2110/gbCalc/wiki#gbcalc-overview)  
-Note: The Code documentation will be overhauled later.
+Note: The Code documentation is not good, and will be overhauled later™.
 
 # how to compile
 
@@ -34,6 +34,9 @@ rgbfix -v -p 0xff calc.gb
 
 you can use any Game Boy, Game Boy colour or Game Boy advance emulator to execute the .gb file.  
 I use [Emulicious](https://emulicious.net/downloads/) to test and play the ROM, it uses [Java](https://www.java.com/en/download/)
+
+> [!NOTE]  
+> Some mobile phone emulators refuse to see the .gb file, or crash when loading it.
 
 # Controls
 
