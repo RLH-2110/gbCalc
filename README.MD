@@ -36,7 +36,7 @@ you can use any Game Boy, Game Boy colour or Game Boy advance emulator to execut
 I use [Emulicious](https://emulicious.net/downloads/) to test and play the ROM, it uses [Java](https://www.java.com/en/download/)
 
 > [!NOTE]  
-> Some mobile phone emulators refuse to see the .gb file, or crash when loading it.
+> Some emulators on mobile phones refuse to see the .gb file, or crash when loading it.
 
 # Controls
 
