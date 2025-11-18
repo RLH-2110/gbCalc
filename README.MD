@@ -7,7 +7,7 @@ Note: The Code documentation is not good, and will be overhauled later™.
 
 # how to compile
 
-you need [RGBDS](https://rgbds.gbdev.io/install/) to be installed:  
+you need [RGBDS](https://rgbds.gbdev.io/install) to be installed:  
   
 Optionally, it's useful to have ***make*** installed:  
 (Linux Terminal) sudo apt-get install make  
